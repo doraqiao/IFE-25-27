@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>learning Date</title>
+</head>
+<body>
+<div id="clock"></div>
+
+<div id="container">
+   <select id="year"></select>
+    <select id="month">
+    </select>
+    <select id="date">
+    </select>
+    <select id="hours">
+    </select>
+    <select id="minute">
+    </select>
+    <select id="second">
+    </select>
+    <p id="result-wrapper"></p>
+</div>
+<script type="text/javascript">
+    window.onload = function(){
+        var newDate = new Date();
+        var time = {
+            year : '',
+            month :'',
+            day : '',
+            hours : '',
+            minute : '',
+            second :'',
+            week: '',
+            meridiem :""
+        };
+        var text = getEle("result-wrapper");
+        var container = getEle("container");
+        var selTime = {
+            year:'',
+            month:'',
+            day:'',
+            hours:'',
+            minute:'',
+            second:'',
+            week:'',
+        };
+        var weekday=["天","一","二","三","四","五","六"];
+
+        setInterval(function(){
+            fnDate();
+        },1000);
+
+
+        //获取显示当前日期
+        function fnDate(){
+            var clock = document.getElementById("clock");
+            getNowTime();
+            var weekday=["天","一","二","三","四","五","六"];
+            var newTime = time.year + "年" + fnZero((time.month+1)) + "月" + fnZero(time.day) + "日 星期" + weekday[time.week] + " " + fnZero(time.hours) + ":" + fnZero(time.minute) + ":"  + fnZero(time.second) + " " + time.meridiem;
+            clock.innerHTML = newTime;
+        }
+
+        //个位数前+0
+        function fnZero(Str){
+            var num;
+            num = Str > 9 ? Str: "0"+Str;
+            return num;
+        }
+
+        //获取当前时间
+        function getNowTime(){
+            time.year = newDate.getFullYear();
+            time.month = newDate.getMonth();
+            time.day = newDate.getDate();
+            time.minute = newDate.getMinutes();
+            time.second = newDate.getSeconds();
+            time.week =  newDate.getDay();
+            time.hours = newDate.getHours();
+        }
+
+        //生成对应的option
+        function createOption(ele,firstNum,num){
+            for(var i=firstNum;i<=num;i++){
+                var option = document.createElement("option");
+                option.setAttribute("value",i);
+                option.innerHTML = i;
+                ele.appendChild(option);
+            }
+        }
+        //生成年
+        var year = getEle("year");
+        createOption(year,1990,2100);
+        //生成月
+        var month = getEle("month");
+        createOption(month,1,12);
+        //生成日
+        var date = getEle("date");
+        createDay(date);
+        //生成小时
+        var hours = getEle("hours");
+        createOption(hours,0,23);
+        //生成分钟
+        var minute = getEle("minute");
+        createOption(minute,0,59);
+        //生成秒
+        var second = getEle("second");
+        createOption(second,0,59);
+        //生成对应日期
+        function createDay(ele){
+            createOption(ele,1,31);
+            year.onchange = function(e){
+                var selYear = e.target.value;
+                month.onchange = function(e){
+                    var selMon = e.target.value;
+                    var selDay = new Date(selYear,selMon,0).getDate();
+                    ele.options.length = 0;
+                    createOption(ele,1,selDay);
+                }
+            }
+        }
+
+        //获取选项
+        function getSelect(ele){
+            var options = ele.getElementsByTagName('option');
+            for(var j=0;j<options.length;j++){
+                if(options[j].selected){
+                    return ele.children[j].value;
+                }
+            }
+        }
+
+        //获取每个选项中被选中的value
+        function selectTime(){
+            selTime.year = getSelect(year);
+            selTime.month = getSelect(month);
+            selTime.day = getSelect(date);
+            selTime.hours = getSelect(hours);
+            selTime.minute = getSelect(minute);
+            selTime.second = getSelect(second);
+            selTime.week =  new Date(selTime.year,selTime.month,selTime.day).getDay();
+            console.log(selTime);
+        }
+        //监听
+        container.onchange = function(){
+            selectTime();
+            comparisonTime();
+        };
+
+        //对比选择的时间和现在的时间
+        function comparisonTime(){
+            var curday = new Date(time.year,time.month+1,time.day);
+            var nowday = new Date(selTime.year,selTime.month,selTime.day);
+            var calday = Math.abs((curday.getTime()-nowday.getTime())/(1000*60*60*24));
+            var calhours = calculateTime(time.hours,selTime.hours);
+            var calminute = calculateTime(time.minute,selTime.minute);
+            var calsecond = calculateTime(time.second,selTime.second);
+            var des = null;
+            if(curday > nowday){
+                des = ' 已经过去 ';
+            }else{
+                des = ' 还有 ';
+            }
+            console.log(calsecond);
+            text.innerHTML = "现在距离" + selTime.year + "年" + fnZero(selTime.month) + "月" + fnZero(selTime.day) + "日 星期" + weekday[selTime.week] + " " + fnZero(selTime.hours) + ":" + fnZero(selTime.minute) + ":" + fnZero(selTime.second) + des + calday + "天" + fnZero(calhours) + '时' + fnZero(calminute) + '分' + fnZero(calsecond) + '秒';
+        }
+
+        //获取两数值的不同
+        function calculateTime(curNum,selNum){
+            return Math.abs(curNum - selNum);
+        }
+
+       //获取DOM
+        function getEle(ele){
+            return document.getElementById(ele);
+        }
+    }
+</script>
+</body>
+</html>

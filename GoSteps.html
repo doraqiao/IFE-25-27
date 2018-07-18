@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>learning Date</title>
+    <style type="text/css">
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        .learning_COMDAT span{
+            margin-left: 10px;
+        }
+
+    </style>
+</head>
+<body>
+<div id="learning_COMDAT" class="learning_COMDAT"></div>
+<div id="clock_one"></div>
+<div id="clock_two"></div>
+<div id="clock_three"></div>
+
+<script>
+    window.onload = function(){
+        GoSteps(10);
+        GoSteps(1);
+        GoSteps();
+        GoSteps(0);
+        GoSteps(-1);
+        GoSteps(2.4);
+        GoSteps(1.6);
+        GoSteps(true);
+        GoSteps(false);
+        GoSteps("Test");
+        GoSteps(NaN);
+        GoSteps(null);
+
+        //date编码一
+        fnDate();
+        setInterval(function(){
+            fnDate();
+        },1000);
+
+
+        //date编码二
+        fnDateTwo();
+        setInterval(function(){
+            fnDateTwo();
+        },1000);
+
+
+    };
+    /*函数的封装，获取元素*/
+    function getEle(ele){
+        return document.querySelector(ele);
+    }
+    /*函数封装，创建一个元素*/
+    function createEle(ele){
+        return document.createElement(ele);
+    }
+    /*函数封装，将Go和TurnLeft封装在一起，根据输入的参数决定Go还是TurnLeft*/
+    function move(ele,n) {
+        let work1 = getEle("#learning_COMDAT");
+        let node = createEle("span");
+        if (ele === 'Go') {
+            node.innerHTML = 'Go函数执行'+ (n+1);
+        } else if (ele === 'TurnLeft') {
+            node.innerHTML = 'TurnLeft函数执行' + (n + 1);
+        }
+        work1.appendChild(node);
+        n--;
+    }
+
+    /*根据测试用例中，输入对应参数后需要运行的判断，此为详细版本*/
+   /* function GoSteps(n){
+        if(n === 0){
+            console.log("参数n为0，go函数不运行");
+        }else if(n === false ){
+            console.log("参数n为false，go函数不运行");
+        }else if(String(n) === 'null'){
+            console.log("参数n为null，go函数不运行");
+        }else if(String(n) === 'NaN'){
+            console.log("参数n为NaN，go函数不运行");
+        }else if(!n){
+            n = 0;
+            move('Go',n);
+            console.log("参数n为空，go函数运行"+(n+1)+"次");
+        }else if(isNaN(n)){
+            console.log("参数n不是数字");
+        }else if(n === true){
+            n=0;
+            move('Go',n);
+            console.log("参数n为true，go函数运行1次");
+        }else if(n < 0){
+            console.log("参数n为负数，go函数不运行")
+        }else if(Number.isInteger(n) === false){
+            n = Math.floor(n);
+            while (n--){
+                move('Go',n);
+                console.log("参数n为非整数，现向下转换整数，go函数运行"+(n+1)+"次");
+            }
+        }else{
+            while (n--){
+                move('Go',n);
+                console.log("参数n为数字，go函数运行"+(n+1)+"次");
+            }
+        }
+    }*/
+    /*此为代码重构后简易版本，其中Number.isInteger()是ES6新增，表示判断数字是否为整数*/
+    function GoSteps(n){
+        if(n === 0 || n < 0 || n === false || String(n) === 'null' || String(n) === 'NaN'){
+            console.log("参数n格式不正确，go函数不运行");
+        }else if(!n || n === true){
+            n = 0;
+            move('Go',n);
+            console.log("参数n为空或为true，go函数运行"+(n+1)+"次");
+        }else if(isNaN(n)){
+            console.log("参数n不是数字");
+        }else{
+            if(Number.isInteger(n) === false) n = Math.floor(n);
+            while (n--){
+                move('Go',n);
+                console.log("参数n为数字，go函数运行"+(n+1)+"次");
+            }
+        }
+    }
+
+    /*显示日期：编码一*/
+    function fnDate(){
+        var clock = document.getElementById("clock_one");
+        var date = new Date();
+        var time = {
+            year : date.getFullYear(),
+            mouth :date.getMonth(),
+            day : date.getDate(),
+            hours : date.getHours(),
+            minute : date.getMinutes(),
+            second :date.getSeconds(),
+            week: date.getDay()
+        };
+
+        var weekday=["天","一","二","三","四","五","六"];
+
+        var newTime = time.year + "年" + fnZero((time.mouth+1)) + "月" + fnZero(time.day) + "日 星期" + weekday[time.week] + " " + fnZero(time.hours) + ":" + fnZero(time.minute) + ":"  + fnZero(time.second);
+        clock.innerHTML = newTime;
+    }
+
+    /*显示日期：编码二*/
+    function fnDateTwo(){
+        var clock = document.getElementById("clock_two");
+        var date = new Date();
+        var time = {
+            year : date.getFullYear(),
+            mouth :date.getMonth(),
+            day : date.getDate(),
+            hours : "",
+            minute : date.getMinutes(),
+            second :date.getSeconds(),
+            week: date.getDay(),
+            meridiem :""
+        };
+
+        if(date.getHours() < 12){
+            time.hours = date.getHours();
+            time.meridiem = "AM";
+        }else{
+            time.hours = date.getHours()-12;
+            time.meridiem = "PM"
+        }
+
+        var weekday=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+        var newTime = time.year + "年" + fnZero((time.mouth+1)) + "月" + fnZero(time.day) + "日 " + weekday[time.week] + " " + fnZero(time.hours) + ":" + fnZero(time.minute) + ":"  + fnZero(time.second) + " " + time.meridiem;
+        clock.innerHTML = newTime;
+    }
+
+
+    /*将个位数补齐为两位*/
+    function fnZero(Str){
+        var num;
+        num = Str>9 ? Str: "0"+Str;
+        return num;
+    }
+</script>
+</body>
+</html>
